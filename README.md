@@ -1,4 +1,7 @@
 # Discord Self-XSS
+
+**[[NO LONGER WORKING]](#update)**
+
 Although Discord repeatedly prints massive warnings on the console, telling people about the potential dangers that pasted unknown code snippets could lead to, most users are unwary, and casually run scripts without understanding what they do.
 
 By convincing a user to paste just a couple lines of code, an attacker could access `localStorage` to copy the Session Token without the user even noticing, using something like the following script:
